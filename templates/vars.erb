@@ -12,7 +12,7 @@
 # This variable should point to
 # the top level of the easy-rsa
 # tree.
-export EASY_RSA="`pwd`"
+export EASY_RSA="<%= base_dir %>"
 
 #
 # This variable should point to
@@ -50,25 +50,24 @@ export PKCS11_PIN="dummy"
 # down TLS negotiation performance
 # as well as the one-time DH parms
 # generation process.
-export KEY_SIZE=1024
+export KEY_SIZE=<%= key_size %>
 
 # In how many days should the root CA key expire?
-export CA_EXPIRE=3650
+export CA_EXPIRE=<%= ca_expire %>
 
 # In how many days should certificates expire?
-export KEY_EXPIRE=3650
+export KEY_EXPIRE=<%= key_expire %>
 
 # These are the default values for fields
 # which will be placed in the certificate.
 # Don't leave any of these fields blank.
-export KEY_COUNTRY="US"
-export KEY_PROVINCE="CA"
-export KEY_CITY="SanFrancisco"
-export KEY_ORG="Fort-Funston"
-export KEY_EMAIL="me@myhost.mydomain"
-export KEY_EMAIL=mail@host.domain
-export KEY_CN=changeme
-export KEY_NAME=changeme
-export KEY_OU=changeme
+export KEY_COUNTRY="<%= key_country %>"
+export KEY_PROVINCE="<%= key_province %>"
+export KEY_CITY="<%= key_city %>"
+export KEY_ORG="<%= key_org %>"
+export KEY_EMAIL="<%= key_email %>"
+export KEY_CN<%= key_cn %>
+export KEY_NAME=<%= key_name %>
+export KEY_OU=<%= key_ou %>
 export PKCS11_MODULE_PATH=changeme
 export PKCS11_PIN=1234
