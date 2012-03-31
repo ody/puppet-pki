@@ -11,23 +11,29 @@ define easyrsa::ca (
   $key_cn       = "changeme",
   $key_name     = "changeme",
   $key_ou       = "changeme",
-  $base_path
+  $base_dir
 ) {
 
-  file { "${base_path}/vars":
-    mode    => 700,
-    content => template("easyrsa/vars.erb")
+  easyrsa { $title:
+    base_dir => $base_dir,
+    before   => Pkitool["Generate CA at ${base_dir}"],
   }
 
-  exec { "Clean All at ${base_path}":
-    cwd         => $base_path,
-    command     => "/bin/bash -c \"(source $base_dir/vars > /dev/null; ${base_path}/clean-all)\"",
-    creates     => "${base_path}/keys/serial",
-    before      => Pkitool["Generate CA at ${base_path}"],
+  file { "${base_dir}/vars":
+    mode    => 700,
+    content => template("easyrsa/vars.erb"),
+    before  => Pkitool["Generate CA at ${base_dir}"],
+  }
+
+  exec { "Clean All at ${base_dir}":
+    cwd         => $base_dir,
+    command     => "/bin/bash -c \"(source $base_dir/vars > /dev/null; ${base_dir}/clean-all)\"",
+    creates     => "${base_dir}/keys/serial",
+    before      => Pkitool["Generate CA at ${base_dir}"],
   }
 
   Pkitool { base_dir => $base_dir }
-  pkitool { "Generate CA at ${base_path}":
+  pkitool { "Generate CA at ${base_dir}":
     command => "--initca",
     creates => "${base_dir}/keys/ca.crt",
   }
