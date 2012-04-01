@@ -1,7 +1,8 @@
 # PKI Management with Puppet
 
-All of the OpenSSL work is done by the tools provided in EasyRSA from the
-OpenVPN 2.2.2 source.
+All of the OpenSSL work is currently done by the tools provided in EasyRSA from
+the OpenVPN 2.2.2 source, with the intention that some will be replaced by
+calling the openssl commands directly.
 
 ## Usage
 
