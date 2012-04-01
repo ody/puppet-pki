@@ -1,2 +1,2 @@
-### EASYRSA Key Management with Puppet
+### PKI Management with Puppet
 
