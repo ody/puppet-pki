@@ -1,9 +1,9 @@
 #
 define easyrsa (
-  $base_dir
+  $dest
   ) {
 
-  file { $base_dir:
+  file { $dest:
     source => "puppet:///modules/easyrsa/easyrsa",
     recurse => true,
     replace => false,
