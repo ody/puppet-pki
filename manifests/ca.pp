@@ -12,7 +12,8 @@ define easyrsa::ca (
     $key_ou       = "TechOps",
     $pki_dir,
     $source_key   = '',
-    $source_cert  = ''
+    $source_cert  = '',
+    $dh           = false
 ) {
 
 
@@ -73,11 +74,13 @@ define easyrsa::ca (
 
   }
 
-  exec { "Build DH at ${dest}":
-    cwd     => $dest,
-    command => "/bin/bash -c \"(source $dest/vars > /dev/null; ${dest}/build-dh ${key_size})\"",
-    creates => "${dest}/keys/dh${key_size}.pem",
-    require => Anchor["ca::${key_cn}::end"],
+  if $dh == true {
+    exec { "Build DH at ${dest}":
+      cwd     => $dest,
+      command => "/bin/bash -c \"(source $dest/vars > /dev/null; ${dest}/build-dh ${key_size})\"",
+      creates => "${dest}/keys/dh${key_size}.pem",
+      require => Anchor["ca::${key_cn}::end"],
+    }
   }
 
 }
