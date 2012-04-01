@@ -5,8 +5,6 @@ define pkitool (
     $environment
 ){
 
-  # command => "/bin/bash -c \"(source $base_dir/vars > /dev/null; $base_dir/build-key_auto client_$name > /dev/null)\"",
-
   exec { $title:
     cwd         => $base_dir,
     command     => "/bin/bash -c \"(source $base_dir/vars > /dev/null; $base_dir/pkitool $command)\"",
