@@ -1,5 +1,8 @@
 # PKI Management with Puppet
 
+All of the OpenSSL work is done by the tools provided in EasyRSA from the
+OpenVPN 2.2.2 source.
+
 ## Usage
 
 ### Generate the Root CA
