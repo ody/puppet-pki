@@ -10,40 +10,75 @@ define easyrsa::ca (
     $key_org      = "Acme",
     $key_name     = "Root",
     $key_ou       = "TechOps",
-    $base_dir
+    $pki_dir,
+    $source_key   = '',
+    $source_cert  = ''
 ) {
 
+
   $key_cn = $name
+  $dest   = "${pki_dir}/${key_cn}"
+
+  anchor { "ca::${key_cn}::start": }
+  -> anchor { "ca::${key_cn}::ready": }
+  -> anchor { "ca::${key_cn}::end": }
+
   Exec { environment => "KEY_CN=${key_cn}" }
 
-  easyrsa { $title: base_dir => $base_dir, }
+  easyrsa { $title:
+    dest   => $dest,
+    before => Anchor["ca::${key_cn}::start"],
+  }
 
-  file { "${base_dir}/vars":
+  file { "${dest}/vars":
     mode    => 700,
     content => template("easyrsa/vars.erb"),
-    before  => Pkitool["Generate CA at ${base_dir}"],
-    require => Easyrsa[$title],
+    require => Anchor["ca::${key_cn}::start"],
+    before  => Anchor["ca::${key_cn}::ready"],
   }
 
-  exec { "Clean All at ${base_dir}":
-    cwd     => $base_dir,
-    command => "/bin/bash -c \"(source $base_dir/vars > /dev/null; ${base_dir}/clean-all)\"",
-    creates => "${base_dir}/keys/serial",
-    require => [ Easyrsa[$title], File["${base_dir}/vars"] ],
+  exec { "Clean All at ${dest}":
+    cwd     => $dest,
+    command => "/bin/bash -c \"(source $dest/vars > /dev/null; ${dest}/clean-all)\"",
+    creates => "${dest}/keys/serial",
+    require => Anchor["ca::${key_cn}::ready"],
+    before  => Anchor["ca::${key_cn}::end"],
   }
 
-  Pkitool { base_dir => $base_dir, environment => "KEY_CN=${key_cn}" }
-  pkitool { "Generate CA at ${base_dir}":
-    command => "--initca",
-    creates => "${base_dir}/keys/ca.crt",
-    require => Exec["Clean All at ${base_dir}"],
+  Pkitool {
+    base_dir    => $dest,
+    environment => "KEY_CN=${key_cn}",
+    require     => Anchor["ca::${key_cn}::end"],
   }
 
-  exec { "Build DH at ${base_dir}":
-    cwd     => $base_dir,
-    command => "/bin/bash -c \"(source $base_dir/vars > /dev/null; ${base_dir}/build-dh ${key_size})\"",
-    creates => "${base_dir}/keys/dh${key_size}.pem",
-    require => Pkitool["Generate CA at ${base_dir}"],
+  if ( $source_key != '' and $source_cert != '' ) {
+
+    file { "${dest}/keys/ca.crt":
+      source  => $source_cert,
+      mode    => 0644,
+      require => Anchor["ca::${key_cn}::end"],
+    }
+    file { "${dest}/keys/ca.key":
+      source => $source_key,
+      mode   => 0644,
+      require => Anchor["ca::${key_cn}::end"],
+    }
+
+  } else {
+
+    pkitool { "Generate CA at ${dest}":
+      command => "--initca",
+      creates => "${dest}/keys/ca.crt",
+    }
+
+  }
+
+  exec { "Build DH at ${dest}":
+    cwd     => $dest,
+    command => "/bin/bash -c \"(source $dest/vars > /dev/null; ${dest}/build-dh ${key_size})\"",
+    creates => "${dest}/keys/dh${key_size}.pem",
+    require => Anchor["ca::${key_cn}::end"],
   }
 
 }
+
