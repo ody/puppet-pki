@@ -1,5 +1,5 @@
 #
-define easyrsa::ca (
+define pki::ca (
     $ca_expire    = '3650',
     $key_expire   = '3650',
     $key_size     = '1024',

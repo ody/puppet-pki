@@ -1,5 +1,5 @@
 #
-define easyrsa (
+define pki (
   $dest
   ) {
 

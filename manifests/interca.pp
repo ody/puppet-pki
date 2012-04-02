@@ -1,6 +1,6 @@
 # $rootca is the location of the Root CAs base directory
 # $dest is the destination that we will be creating this ca
-define easyrsa::interca (
+define pki::interca (
     $key_size     = '1024',
     $ca_expire    = '3650',
     $key_expire   = '3650',

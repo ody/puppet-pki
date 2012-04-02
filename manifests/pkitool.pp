@@ -1,4 +1,4 @@
-define pkitool (
+define pki::pkitool (
     $base_dir,
     $command,
     $creates,
