@@ -1,5 +1,5 @@
 #
-define easyrsa::ca (
+define pki::ca (
     $ca_expire    = '3650',
     $key_expire   = '3650',
     $key_size     = '1024',
@@ -43,14 +43,14 @@ define easyrsa::ca (
     environment => $environment,
   }
 
-  easyrsa { $title:
+  pki { $title:
     dest   => $dest,
     before => Anchor["ca::${key_cn}::start"],
   }
 
   file { "${dest}/vars":
     mode    => 700,
-    content => template("easyrsa/vars.erb"),
+    content => template("pki/vars.erb"),
     require => Anchor["ca::${key_cn}::start"],
     before  => Anchor["ca::${key_cn}::ready"],
   }
@@ -63,7 +63,7 @@ define easyrsa::ca (
     before  => Anchor["ca::${key_cn}::end"],
   }
 
-  Pkitool {
+  Pki::Pkitool {
     base_dir    => $dest,
     environment => $environment,
     require     => Anchor["ca::${key_cn}::end"],
@@ -84,7 +84,7 @@ define easyrsa::ca (
 
   } else {
 
-    pkitool { "Generate CA at ${dest}":
+    pki::pkitool { "Generate CA at ${dest}":
       command => "--initca",
       creates => "${dest}/keys/ca.crt",
     }
