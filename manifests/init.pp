@@ -4,7 +4,7 @@ define pki (
   ) {
 
   file { $dest:
-    source => "puppet:///modules/easyrsa/easyrsa",
+    source => "puppet:///modules/pki/easyrsa",
     recurse => true,
     replace => false,
   }
