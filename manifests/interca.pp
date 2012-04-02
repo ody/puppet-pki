@@ -11,6 +11,7 @@ define easyrsa::interca (
     $key_org      = "Acme",
     $key_name     = "Root",
     $key_ou       = "TechOps",
+    $dh           = false,
     $pki_dir,
     $rootca
 ) {
@@ -18,12 +19,26 @@ define easyrsa::interca (
   $key_cn = $name
   $dest   = "${pki_dir}/${key_cn}"
 
+  $environment = [ 
+    "CA_EXPIRE=${ca_expire}",
+    "KEY_EXPIRE=${key_expire}",
+    "KEY_SIZE=${key_size}",
+    "KEY_COUNTRY=${key_country}",
+    "KEY_PROVINCE=${key_province}",
+    "KEY_CITY=${key_city}",
+    "KEY_EMAIL=${key_email}",
+    "KEY_ORG=${key_org}",
+    "KEY_CN=${key_cn}",
+    "KEY_OU=${key_ou}",
+    "KEY_NAME=${key_name}",
+  ]
+
   # Build the Intermediate CA and sign it with the root CA
   pkitool { "Generate Intermediate CA for ${key_cn} at ${rootca}":
     command     => "--inter ${key_cn}",
     creates     => "${rootca}/keys/${key_cn}.crt",
     base_dir    => $rootca,
-    environment => "KEY_CN=${key_cn}",
+    environment => $environment,
     require     => Easyrsa["Root"],
   }
 
@@ -40,6 +55,7 @@ define easyrsa::interca (
     key_name     => $key_name,
     key_ou       => $key_ou,
     pki_dir      => $pki_dir,
+    dh           => $dh,
     source_key   => "${rootca}/keys/${key_cn}.key",
     source_cert  => "${rootca}/keys/${key_cn}.crt",
     require      => Pkitool["Generate Intermediate CA for ${key_cn} at ${rootca}"],

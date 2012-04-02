@@ -1,8 +1,8 @@
 #
 define easyrsa::ca (
-    $key_size     = '1024',
     $ca_expire    = '3650',
     $key_expire   = '3650',
+    $key_size     = '1024',
     $key_country  = 'US',
     $key_province = 'OR',
     $key_city     = "Portland",
@@ -13,7 +13,8 @@ define easyrsa::ca (
     $pki_dir,
     $source_key   = '',
     $source_cert  = '',
-    $dh           = false
+    $dh           = false,
+    $rootca_path  = ''
 ) {
 
 
@@ -24,7 +25,23 @@ define easyrsa::ca (
   -> anchor { "ca::${key_cn}::ready": }
   -> anchor { "ca::${key_cn}::end": }
 
-  Exec { environment => "KEY_CN=${key_cn}" }
+  $environment = [
+    "CA_EXPIRE=${ca_expire}",
+    "KEY_EXPIRE=${key_expire}",
+    "KEY_SIZE=${key_size}",
+    "KEY_COUNTRY=${key_country}",
+    "KEY_PROVINCE=${key_province}",
+    "KEY_CITY=${key_city}",
+    "KEY_EMAIL=${key_email}",
+    "KEY_ORG=${key_org}",
+    "KEY_CN=${key_cn}",
+    "KEY_OU=${key_ou}",
+    "KEY_NAME=${key_name}",
+  ]
+
+  Exec {
+    environment => $environment,
+  }
 
   easyrsa { $title:
     dest   => $dest,
@@ -48,7 +65,7 @@ define easyrsa::ca (
 
   Pkitool {
     base_dir    => $dest,
-    environment => "KEY_CN=${key_cn}",
+    environment => $environment,
     require     => Anchor["ca::${key_cn}::end"],
   }
 
